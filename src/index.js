@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 import './index.css';
 
 
@@ -57,73 +57,82 @@ class App extends React.Component {
   }
 
   prepareSummary(data) {
-    var summaryOptions = {
+    const summaryOptions = {
       legend: { display: false },
-      plugins: { datalabels: { render: "value", anchor: "end", align: "end" } } 
+      plugins: { datalabels: { render: "value", anchor: "end", align: "end", display: true } },layout: {
+      // Padding to give space for datalabels
+      padding: {
+          left: 50,
+          right: 50,
+          top: 50,
+          bottom: 50,
+      }
+    }
     };
-    var durationSum = 0;
-    var durations = {
-        "School and Work": 0,
-        "Personal Development": 0,
-        "Personal Well-being": 0,
-        "Misc": 0,
-        "Personal Enjoyment": 0,
-        "Unknown": 0,
+    let durationSum = 0;
+    let labelDurationSums = {
+      "School and Work": 0,
+      "Personal Development": 0,
+      "Personal Well-being": 0,
+      "Misc": 0,
+      "Personal Enjoyment": 0,
+      "Unknown": 0,
     };
 
-    for (var i = 0; i < data.durations.length; i++) {
-        var label = data.line_labels[i];
-        var duration = data.durations[i];
-        durations[label] += duration;
-        durationSum += duration;
+    for (let i = 0; i < data.durations.length; i++) {
+      const label = data.line_labels[i];
+      const duration = data.durations[i];
+      labelDurationSums[label] += duration;
+      durationSum += duration;
     }
 
-    var summaryData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
-    for (var [label, duration] of Object.entries(durations)) {
-        var color = this.labelToColor(label);
-        summaryData.datasets[0].data.push(duration);
-        summaryData.datasets[0].backgroundColor.push(color);
-        summaryData.labels.push(label);
+    let summaryData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
+    for (let [label, duration] of Object.entries(labelDurationSums)) {
+      const color = this.labelToColor(label);
+      summaryData.datasets[0].data.push(duration);
+      summaryData.datasets[0].backgroundColor.push(color);
+      summaryData.labels.push(label);
     }
     // Add empty fragment for missing log
     if (durationSum < 24 * 60) {
-        summaryData.datasets[0].data.push(24 * 60 - durationSum);
-        summaryData.datasets[0].backgroundColor.push("#ffffff");
-        summaryData.labels.push("");
+      summaryData.datasets[0].data.push(24 * 60 - durationSum);
+      summaryData.datasets[0].backgroundColor.push("#ffffff");
+      summaryData.labels.push("");
     }
 
     return [summaryData, summaryOptions]
   }
 
   prepareClocks(data) {
-    const { durations, line_labels, lines, task_labels, tasks } = data;
-    var amData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
-    var pmData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
-    var clockOptions = {
+    const clockOptions = {
       legend: {
-          display: false
+        display: false
       },
       plugins: {
-          datalabels: {
-              display: false
-          }
+        datalabels: {
+            display: false
+        }
       }
     };
 
-    var durationSum = 0;
-    var isPM = false;
-    var unknownLines = [];
-    for (var i = 0; i < durations.length; i++) {
-        var duration = durations[i];
-        var line = lines[i];
-        var label = line_labels[i];
-        var color = this.labelToColor(label);
+    const { durations, line_labels, lines } = data;
+    let amData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
+    let pmData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
+
+    let durationSum = 0;
+    let isPM = false;
+    let unknownLines = [];
+    for (let i = 0; i < durations.length; i++) {
+        const duration = durations[i];
+        const line = lines[i];
+        const label = line_labels[i];
+        const color = this.labelToColor(label);
 
         durationSum += duration;
         if (!isPM && durationSum > 60 * 12) {
             isPM = true;
-            var amDuration = durationSum - 60 * 12;
-            var pmDuration = duration - amDuration;
+            const amDuration = durationSum - 60 * 12;
+            const pmDuration = duration - amDuration;
             amData.datasets[0].data.push(amDuration);
             amData.datasets[0].backgroundColor.push(color);
             amData.labels.push(line);
