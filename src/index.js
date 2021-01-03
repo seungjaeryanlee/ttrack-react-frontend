@@ -12,19 +12,25 @@ class App extends React.Component {
       error: null,
       isLoaded: false,
       data: {},
-      log: "Stub log",
+      log: "",
     };
   }
 
   componentDidMount() {
-    fetch("http://localhost:5000/api/all/2021-01-01")
-      .then(res => res.json())
-      .then(
-        (result) => {
+    // NOTE: Promise for multiple fetches: https://stackoverflow.com/a/52883003/2577392
+    Promise.all([
+      fetch("http://localhost:5000/api/all/2021-01-01"),
+      fetch("http://localhost:5000/api/log/2021-01-01")
+    ])
+      .then(([res1, res2]) => { 
+        return Promise.all([res1.json(), res2.json()]) 
+      })
+      .then(([res1, res2]) => {
           this.setState({
             isLoaded: true,
-            data: result
-          });
+            data: res1,
+            log: res2.log,
+          })
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -218,7 +224,7 @@ class App extends React.Component {
           </div>
           <div className="log-container">
             <h2>LOG</h2>
-            <textarea id="log" onChange={(event) => this.onLogChange(event)}></textarea>
+            <textarea id="log" value={this.state.log} onChange={(event) => this.onLogChange(event)}></textarea>
             <button onClick={this.saveLog.bind(this)}>Save LOG</button>
           </div>
         </div>
