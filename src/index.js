@@ -11,12 +11,13 @@ class App extends React.Component {
     this.state = {
       error: null,
       isLoaded: false,
-      data: {}
+      data: {},
+      log: "Stub log",
     };
   }
 
   componentDidMount() {
-    fetch("http://localhost:5000/api/all/2020-10-10")
+    fetch("http://localhost:5000/api/all/2021-01-01")
       .then(res => res.json())
       .then(
         (result) => {
@@ -62,10 +63,10 @@ class App extends React.Component {
       plugins: { datalabels: { render: "value", anchor: "end", align: "end", display: true } },layout: {
       // Padding to give space for datalabels
       padding: {
-          left: 50,
-          right: 50,
-          top: 50,
-          bottom: 50,
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: 20,
       }
     }
     };
@@ -170,6 +171,26 @@ class App extends React.Component {
     return [amData, pmData, clockOptions]
   }
 
+  onLogChange(event) {
+    this.setState({ log: event.target.value });
+  }
+
+  saveLog() {
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ log: this.state.log })
+    };
+    fetch('http://localhost:5000/api/log/save', requestOptions)
+      .then(res => res.json())
+      .then(
+        (result) => {},
+        (error) => {
+          console.log(error);
+        }
+      )
+  }
+
   render() {
     const { error, isLoaded, data } = this.state;
     if (error) {
@@ -194,6 +215,11 @@ class App extends React.Component {
                   <h3>Summary</h3>
                   <Doughnut data={summaryData} options={summaryOptions}/>
               </div>
+          </div>
+          <div className="log-container">
+            <h2>LOG</h2>
+            <textarea id="log" onChange={(event) => this.onLogChange(event)}></textarea>
+            <button onClick={this.saveLog.bind(this)}>Save LOG</button>
           </div>
         </div>
       );
