@@ -1,6 +1,6 @@
 // Parse log into durations of tasks
 // Copied from https://github.com/seungjaeryanlee/self-management/blob/master/task_based_parse.py
-export var parseLog = function(log) {
+export var parseLog = function(log, task_to_label) {
     var rawLines = log.split(/\r?\n/).slice(1);
     var isPM = false;
     var durations = [];
@@ -23,7 +23,7 @@ export var parseLog = function(log) {
         var minute = parseInt(time.slice(-2));
         var timeInMinutes = 60 * hour + minute;
         var durationInMinutes = timeInMinutes - lastTimeInMinutes;
-        var line_label = classifyLine(line);
+        var line_label = classifyLine(line, task_to_label);
 
         durations.push(durationInMinutes);
         lines.push(line);
@@ -36,61 +36,36 @@ export var parseLog = function(log) {
     return { durations, lines, line_labels };
 }
 
+const LABEL_PRIORITIES = [
+    "Unknown",
+    "School and Work",
+    "Personal Development",
+    "Personal Well-being",
+    "Misc",
+    "Personal Enjoyment",
+    "Ignore",
+]
 
 // Classify a single line with task-based classifiers in textarea
-var classifyLine = function(line) {
+var classifyLine = function(line, task_to_label) {
     var tasks = line.split(" / ");
-
-    // TODO: Populate via backend API?
-    var schoolAndWorkTasks = [];
-    var personalDevelopmentTasks = [];
-    var personalWellBeingTasks = [];
-    var personalEnjoymentTasks = [];
-    var miscTasks = ["Sleep"];
-    var ignoreTasks = [];
-
-    var hasUnknownTask = false;
-    var hasSchoolAndWork = false;
-    var hasPersonalDevelopment = false;
-    var hasPersonalWellBeing = false;
-    var hasMisc = false;
-    var hasPersonalEnjoyment = false;
-    var hasIgnore = false;
-
-    for (var task of tasks) {
-        if (schoolAndWorkTasks.includes(task)) {
-            hasSchoolAndWork = true;
-        } else if (personalDevelopmentTasks.includes(task)) {
-            hasPersonalDevelopment = true;
-        } else if (personalWellBeingTasks.includes(task)) {
-            hasPersonalWellBeing = true;
-        } else if (miscTasks.includes(task)) {
-            hasMisc = true;
-        } else if (personalEnjoymentTasks.includes(task)) {
-            hasPersonalEnjoyment = true;
-        } else if (ignoreTasks.includes(task)) {
-            hasIgnore = true;
+    var task_labels = [];
+    for (const task of tasks) {
+        if (task in task_to_label) {
+            task_labels.push(task_to_label[task]);
         } else {
-            hasUnknownTask = true;
+            task_labels.push("Unknown");
         }
     }
 
-    // NOTE: Optimistic classifier
-    if (hasUnknownTask) {
-        return "Unknown";
-    } else if (hasSchoolAndWork) {
-        return "School and Work";
-    } else if (hasPersonalDevelopment) {
-        return "Personal Development";
-    } else if (hasPersonalWellBeing) {
-        return "Personal Well-being";
-    } else if (hasMisc) {
-        return "Misc";
-    } else if (hasPersonalEnjoyment) {
-        return "Personal Enjoyment";
-    } else if (hasIgnore) {
-        return "Misc";
-    } else {
-        return "Unknown";
+    let line_label = "Unknown";
+    for (const label of LABEL_PRIORITIES) {
+        if (task_labels.includes(label)) {
+            line_label = label;
+            break;
+        }
     }
+    if (line_label === "Ignore") { line_label = "Misc"; }
+
+    return line_label;
 }

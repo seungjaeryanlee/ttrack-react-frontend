@@ -19,22 +19,25 @@ class App extends React.Component {
       data: {},
       log: "",
       logDate: new Date("2021-01-01"),
+      task_to_label: {},
     };
   }
 
   componentDidMount() {
     // NOTE: Promise for multiple fetches: https://stackoverflow.com/a/52883003/2577392
     Promise.all([
-      fetch(`http://localhost:5000/api/log/${this.dateToStr(this.state.logDate)}`)
+      fetch(`http://localhost:5000/api/log/${this.dateToStr(this.state.logDate)}`),
+      fetch(`http://localhost:5000/api/rules/all`)
     ])
-      .then(([res1]) => {
-        return Promise.all([res1.json()])
+      .then(([res1, res2]) => {
+        return Promise.all([res1.json(), res2.json()])
       })
-      .then(([res1]) => {
+      .then(([res1, res2]) => {
           this.setState({
             isLoaded: true,
             log: res1.log,
-            data: parseLog(res1.log),
+            data: parseLog(res1.log, res2),
+            task_to_label: res2,
           })
         },
         // Note: it's important to handle errors here
@@ -199,7 +202,7 @@ class App extends React.Component {
         (result) => {
           this.setState({
             log: result.log,
-            data: parseLog(result.log),
+            data: parseLog(result.log, this.state.task_to_label),
           })
         },
         (error) => {
@@ -213,7 +216,7 @@ class App extends React.Component {
   onLogTextareaChange(event) {
     this.setState({
       log: event.target.value,
-      data: parseLog(this.state.log),
+      data: parseLog(this.state.log, this.state.task_to_label),
     });
   }
 
