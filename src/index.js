@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
+import DatePicker from "react-datepicker";
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
+
 import './index.css';
+import "react-datepicker/dist/react-datepicker.css";
 
 
 class App extends React.Component {
@@ -13,6 +16,7 @@ class App extends React.Component {
       isLoaded: false,
       data: {},
       log: "",
+      logDate: "2021-01-01",
     };
   }
 
@@ -177,6 +181,33 @@ class App extends React.Component {
     return [amData, pmData, clockOptions]
   }
 
+  dateToStr(date) {
+    const offset = date.getTimezoneOffset()
+    const noOffsetDate = new Date(date.getTime() - (offset*60*1000))
+    return noOffsetDate.toISOString().split('T')[0]
+  }
+
+  setLogDate(logDate) {
+    const logDateStr = this.dateToStr(logDate);
+    this.setState({ logDate: logDateStr });
+
+    // Reload LOG textarea
+    fetch(`http://localhost:5000/api/log/${logDateStr}`)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            log: result.log,
+          })
+        },
+        (error) => {
+          this.setState({
+            error
+          })
+        }
+      )
+  }
+
   onLogChange(event) {
     this.setState({ log: event.target.value });
   }
@@ -224,6 +255,7 @@ class App extends React.Component {
           </div>
           <div className="log-container">
             <h2>LOG</h2>
+            <DatePicker selected={this.logDate} onChange={logDate => this.setLogDate(logDate)} />
             <textarea id="log" value={this.state.log} onChange={(event) => this.onLogChange(event)}></textarea>
             <button onClick={this.saveLog.bind(this)}>Save LOG</button>
           </div>
