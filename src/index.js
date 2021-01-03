@@ -4,6 +4,8 @@ import { Doughnut, Pie } from 'react-chartjs-2';
 import DatePicker from "react-datepicker";
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 
+import { parseLog } from './logParser';
+
 import './index.css';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -16,24 +18,23 @@ class App extends React.Component {
       isLoaded: false,
       data: {},
       log: "",
-      logDate: "2021-01-01",
+      logDate: new Date("2021-01-01"),
     };
   }
 
   componentDidMount() {
     // NOTE: Promise for multiple fetches: https://stackoverflow.com/a/52883003/2577392
     Promise.all([
-      fetch("http://localhost:5000/api/all/2021-01-01"),
-      fetch("http://localhost:5000/api/log/2021-01-01")
+      fetch(`http://localhost:5000/api/log/${this.dateToStr(this.state.logDate)}`)
     ])
-      .then(([res1, res2]) => { 
-        return Promise.all([res1.json(), res2.json()]) 
+      .then(([res1]) => {
+        return Promise.all([res1.json()])
       })
-      .then(([res1, res2]) => {
+      .then(([res1]) => {
           this.setState({
             isLoaded: true,
-            data: res1,
-            log: res2.log,
+            log: res1.log,
+            data: parseLog(res1.log),
           })
         },
         // Note: it's important to handle errors here
@@ -182,22 +183,23 @@ class App extends React.Component {
   }
 
   dateToStr(date) {
-    const offset = date.getTimezoneOffset()
-    const noOffsetDate = new Date(date.getTime() - (offset*60*1000))
-    return noOffsetDate.toISOString().split('T')[0]
+    const offset = date.getTimezoneOffset();
+    const noOffsetDate = new Date(date.getTime() - (offset*60*1000));
+    return noOffsetDate.toISOString().split('T')[0];
   }
 
   setLogDate(logDate) {
-    const logDateStr = this.dateToStr(logDate);
-    this.setState({ logDate: logDateStr });
+    this.setState({ logDate });
 
     // Reload LOG textarea
+    const logDateStr = this.dateToStr(logDate);
     fetch(`http://localhost:5000/api/log/${logDateStr}`)
       .then((res) => res.json())
       .then(
         (result) => {
           this.setState({
             log: result.log,
+            data: parseLog(result.log),
           })
         },
         (error) => {
@@ -208,8 +210,11 @@ class App extends React.Component {
       )
   }
 
-  onLogChange(event) {
-    this.setState({ log: event.target.value });
+  onLogTextareaChange(event) {
+    this.setState({
+      log: event.target.value,
+      data: parseLog(this.state.log),
+    });
   }
 
   saveLog() {
@@ -255,8 +260,8 @@ class App extends React.Component {
           </div>
           <div className="log-container">
             <h2>LOG</h2>
-            <DatePicker selected={this.logDate} onChange={logDate => this.setLogDate(logDate)} />
-            <textarea id="log" value={this.state.log} onChange={(event) => this.onLogChange(event)}></textarea>
+            <DatePicker dateFormat="yyyy-MM-dd" selected={this.state.logDate} onChange={logDate => this.setLogDate(logDate)} />
+            <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
             <button onClick={this.saveLog.bind(this)}>Save LOG</button>
           </div>
         </div>
