@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import { Button } from '@material-ui/core';
+import { Button, Container, Grid, Typography } from '@material-ui/core';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DayjsUtils from '@date-io/dayjs';
 import dayjs from 'dayjs';
@@ -10,7 +10,6 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 import { parseLog } from './logParser';
 
 import './index.css';
-import "react-datepicker/dist/react-datepicker.css";
 
 
 class App extends React.Component {
@@ -245,28 +244,30 @@ class App extends React.Component {
       let [summaryData, summaryOptions] = this.prepareSummary(data);
       return (
         <div className="game">
-          <div className="charts-container">
-              <div className="amChart-container">
-                  <h3>AM</h3>
-                  <Pie data={amData} options={clockOptions}/>
-              </div>
-              <div className="pmChart-container">
-                  <h3>PM</h3>
-                  <Pie data={pmData} options={clockOptions}/>
-              </div>
-              <div className="donutChart-container">
-                  <h3>Summary</h3>
-                  <Doughnut data={summaryData} options={summaryOptions}/>
-              </div>
-          </div>
-          <div className="log-container">
-            <h2>LOG</h2>
+          <Container className="charts-container">
+            <Grid container spacing={1}>
+              <Grid item xs={4}>
+                <Typography variant="h5">AM</Typography>
+                <Pie data={amData} options={clockOptions}/>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="h5">PM</Typography>
+                <Pie data={pmData} options={clockOptions}/>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="h5">Summary</Typography>
+                <Doughnut data={summaryData} options={summaryOptions}/>
+              </Grid>
+            </Grid>
+          </Container>
+          <Container className="log-container">
+          <Typography variant="h4">LOG</Typography>
             <MuiPickersUtilsProvider utils={DayjsUtils}>
               <DatePicker format="YYYY-MM-DD" value={this.state.logDate} onChange={logDate => this.setLogDate(logDate)} />
             </MuiPickersUtilsProvider>
             <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
             <Button variant="contained" color="primary" onClick={this.saveLog.bind(this)}>Save LOG</Button>
-          </div>
+          </Container>
         </div>
       );
     }

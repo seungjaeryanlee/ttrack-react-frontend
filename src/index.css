@@ -1,16 +1,4 @@
 .charts-container {
-    margin-bottom: 60px;
-    display: flex;
-    flex-direction: row;
-}
-.amChart-container, .pmChart-container {
-    width: 33%;
-    margin: 0 auto;
-    text-align: center;
-}
-.donutChart-container {
-    width: 33%;
-    margin: 0 auto;
     text-align: center;
 }
 
