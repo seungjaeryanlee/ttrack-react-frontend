@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import { Button, Col, Layout, Row, Typography } from 'antd';
+import { Button, Col, Layout, Row, Space, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 
@@ -12,8 +12,9 @@ import "antd/dist/antd.css";
 import './index.css';
 
 
-const { Title } = Typography;
 const { Content } = Layout;
+const { TabPane } = Tabs;
+const { Title } = Typography;
 
 
 class App extends React.Component {
@@ -247,27 +248,36 @@ class App extends React.Component {
       let [summaryData, summaryOptions] = this.prepareSummary(data);
       return (
         <div>
-          <div className="charts-container">
-            <Row>
-              <Col span={8}>
-                <Title level={5}>AM</Title>
-                <Pie data={amData} options={clockOptions}/>
+          <div className="container">
+            <div className="charts-container">
+              <Row>
+                <Col span={8}>
+                  <Title level={5}>AM</Title>
+                  <Pie data={amData} options={clockOptions}/>
+                  </Col>
+                <Col span={8}>
+                  <Title level={5}>PM</Title>
+                  <Pie data={pmData} options={clockOptions}/>
                 </Col>
-              <Col span={8}>
-                <Title level={5}>PM</Title>
-                <Pie data={pmData} options={clockOptions}/>
-              </Col>
-              <Col span={8}>
-                <Title level={5}>Summary</Title>
-                <Doughnut data={summaryData} options={summaryOptions}/>
-                </Col>
-            </Row>
-          </div>
-          <div className="log-container">
-            <Title level={4}>LOG</Title>
-            <DatePicker value={this.state.logDate} onChange={(date, dateString) => this.setLogDate(date, dateString)} />
-            <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
-            <Button type="primary" onClick={this.saveLog.bind(this)}>Save LOG</Button>
+                <Col span={8}>
+                  <Title level={5}>Summary</Title>
+                  <Doughnut data={summaryData} options={summaryOptions}/>
+                  </Col>
+              </Row>
+            </div>
+            
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="LOG" key="1">
+                <div className="log-container">
+                  <DatePicker value={this.state.logDate} onChange={(date, dateString) => this.setLogDate(date, dateString)} />
+                  <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
+                  <Button type="primary" onClick={this.saveLog.bind(this)}>Save LOG</Button>
+                </div>
+              </TabPane>
+              <TabPane tab="Classifier" key="2">
+                To Be Added
+              </TabPane>
+            </Tabs>
           </div>
         </div>
       );
