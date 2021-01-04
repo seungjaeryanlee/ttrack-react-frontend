@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import DatePicker from "react-datepicker";
+import { Button } from '@material-ui/core';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DayjsUtils from '@date-io/dayjs';
+import dayjs from 'dayjs';
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 
 import { parseLog } from './logParser';
@@ -18,7 +21,7 @@ class App extends React.Component {
       isLoaded: false,
       data: {},
       log: "",
-      logDate: new Date("2021-01-01"),
+      logDate: dayjs("2021-01-01"),
       task_to_label: {},
     };
   }
@@ -26,7 +29,7 @@ class App extends React.Component {
   componentDidMount() {
     // NOTE: Promise for multiple fetches: https://stackoverflow.com/a/52883003/2577392
     Promise.all([
-      fetch(`http://localhost:5000/api/log/${this.dateToStr(this.state.logDate)}`),
+      fetch(`http://localhost:5000/api/log/${this.state.logDate.format("YYYY-MM-DD")}`),
       fetch(`http://localhost:5000/api/rules/all`)
     ])
       .then(([res1, res2]) => {
@@ -185,17 +188,12 @@ class App extends React.Component {
     return [amData, pmData, clockOptions]
   }
 
-  dateToStr(date) {
-    const offset = date.getTimezoneOffset();
-    const noOffsetDate = new Date(date.getTime() - (offset*60*1000));
-    return noOffsetDate.toISOString().split('T')[0];
-  }
-
   setLogDate(logDate) {
+    console.log(logDate);
     this.setState({ logDate });
 
     // Reload LOG textarea
-    const logDateStr = this.dateToStr(logDate);
+    const logDateStr = logDate.format("YYYY-MM-DD");
     fetch(`http://localhost:5000/api/log/${logDateStr}`)
       .then((res) => res.json())
       .then(
@@ -263,9 +261,11 @@ class App extends React.Component {
           </div>
           <div className="log-container">
             <h2>LOG</h2>
-            <DatePicker dateFormat="yyyy-MM-dd" selected={this.state.logDate} onChange={logDate => this.setLogDate(logDate)} />
+            <MuiPickersUtilsProvider utils={DayjsUtils}>
+              <DatePicker format="YYYY-MM-DD" value={this.state.logDate} onChange={logDate => this.setLogDate(logDate)} />
+            </MuiPickersUtilsProvider>
             <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
-            <button onClick={this.saveLog.bind(this)}>Save LOG</button>
+            <Button variant="contained" color="primary" onClick={this.saveLog.bind(this)}>Save LOG</Button>
           </div>
         </div>
       );
