@@ -6,6 +6,8 @@ export var parseLog = function(log, task_to_label) {
     var durations = [];
     var lines = [];
     var line_labels = [];
+    var tasks = [];
+    var task_labels = [];
     var lastTimeInMinutes = 0;
     for (var rawLine of rawLines) {
         rawLine = rawLine.trim();
@@ -23,20 +25,21 @@ export var parseLog = function(log, task_to_label) {
         var minute = parseInt(time.slice(-2));
         var timeInMinutes = 60 * hour + minute;
         var durationInMinutes = timeInMinutes - lastTimeInMinutes;
-        var line_label = classifyLine(line, task_to_label);
+        var [line_label, line_tasks, line_task_labels] = classifyLine(line, task_to_label);
 
         durations.push(durationInMinutes);
         lines.push(line);
         line_labels.push(line_label);
+        tasks.push(line_tasks);
+        task_labels.push(line_task_labels);
 
         lastTimeInMinutes = timeInMinutes;
     }
 
-    // TODO: No tasks and task_labels
-    return { durations, lines, line_labels };
+    return { durations, lines, line_labels, tasks, task_labels };
 }
 
-const LABEL_PRIORITIES = [
+export const LABEL_PRIORITIES = [
     "Unknown",
     "School and Work",
     "Personal Development",
@@ -67,5 +70,5 @@ var classifyLine = function(line, task_to_label) {
     }
     if (line_label === "Ignore") { line_label = "Misc"; }
 
-    return line_label;
+    return [ line_label, tasks, task_labels ];
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, Pie } from 'react-chartjs-2';
-import { Button, Col, Layout, Row, Space, Tabs, Typography } from 'antd';
+import { Button, Col, Row, Select, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 
@@ -12,9 +12,9 @@ import "antd/dist/antd.css";
 import './index.css';
 
 
-const { Content } = Layout;
+const { Option } = Select;
 const { TabPane } = Tabs;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 
 class App extends React.Component {
@@ -191,7 +191,7 @@ class App extends React.Component {
 
     return [amData, pmData, clockOptions]
   }
-
+ 
   setLogDate(logDate, logDateString) {
     this.setState({ logDate });
 
@@ -237,6 +237,53 @@ class App extends React.Component {
       )
   }
 
+  updateTaskLabel(task, task_label) {
+    console.log(task, task_label);
+  }
+
+  getUnknownTasks() {
+    const flat_tasks = this.state.data.tasks.flat();
+    const flat_task_labels = this.state.data.task_labels.flat();
+
+    // Sort and remove duplicate unknown tasks
+    let unknown_tasks = [];
+    for (let i = 0; i < flat_tasks.length; i++) {
+      if (flat_task_labels[i] === "Unknown") {
+        unknown_tasks.push(flat_tasks[i]);
+      }
+    }
+    unknown_tasks.sort();
+    unknown_tasks = [...new Set(unknown_tasks)];
+
+    let elements = [];
+
+    for (let i = 0; i < unknown_tasks.length; i++) {
+      const task = unknown_tasks[i];
+
+      // TODO: Use LABEL_PRIORITIES
+      elements.push(
+        <Row justify="space-between" key={task} style={{ backgroundColor: (i % 2 === 0) ? "white" : "#EEEEEE" }}>
+          <Col>
+            <Text>{task}</Text>
+          </Col>
+          <Col>
+            <Select defaultValue="Unknown" onChange={(new_task_label) => this.updateTaskLabel(task, new_task_label)} style={{ width: 200 }}>
+              <Option value="School and Work">School and Work</Option>
+              <Option value="Personal Development">Personal Development</Option>
+              <Option value="Personal Well-being">Personal Well-being</Option>
+              <Option value="Misc">Misc</Option>
+              <Option value="Personal Enjoyment">Personal Enjoyment</Option>
+              <Option value="Ignore">Ignore</Option>
+              <Option value="Unknown">Unknown</Option>
+            </Select>
+          </Col>
+        </Row>
+      );
+    }
+
+    return elements;
+  }
+
   render() {
     const { error, isLoaded, data } = this.state;
     if (error) {
@@ -275,7 +322,7 @@ class App extends React.Component {
                 </div>
               </TabPane>
               <TabPane tab="Classifier" key="2">
-                To Be Added
+                {this.getUnknownTasks()}
               </TabPane>
             </Tabs>
           </div>
