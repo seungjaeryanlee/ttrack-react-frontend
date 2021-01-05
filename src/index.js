@@ -225,7 +225,7 @@ class App extends React.Component {
     const requestOptions = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ log: this.state.log })
+      body: JSON.stringify({ date: this.state.logDate.format("YYYY-MM-DD") , log: this.state.log })
     };
     fetch('http://localhost:5000/api/log/save', requestOptions)
       .then(res => res.json())
@@ -238,7 +238,28 @@ class App extends React.Component {
   }
 
   updateTaskLabel(task, task_label) {
-    console.log(task, task_label);
+    fetch(`http://localhost:5000/api/rules/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task, task_label })
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          if (result.status === "success") {
+            let new_task_to_label = this.state.task_to_label;
+            new_task_to_label[task] = task_label;
+            this.setState({
+              task_to_label: new_task_to_label,
+              data: parseLog(this.state.log, new_task_to_label),
+            })
+            console.log("Success");
+          }
+        },
+        (error) => {
+          this.setState({ error })
+        }
+      )
   }
 
   getUnknownTasks() {
