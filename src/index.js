@@ -215,6 +215,46 @@ class App extends React.Component {
     });
   }
 
+  onPreprocessTextareaChange(event) {
+    this.setState({
+      preprocessInput: event.target.value,
+      preprocessOutput: this.preprocessLog(event.target.value),
+    });
+  }
+
+  preprocessLog(preprocessInput) {
+    let outputLines = [];
+    let rawLines = preprocessInput.split(/\r?\n/);
+    for (const rawLine of rawLines) {
+      let tasks = [];
+      for (const rawTask of rawLine.split("/")) {
+        const task = rawTask.trim()
+                            .replace("bed", "Lie in Bed")
+                            .replace("jog", "Jog (Running Machine)")
+                            .replace("cycle", "Cycle (Cycling Machine)")
+                            .replace("cnp", "Change & Pack")
+                            .replace("wtbc", "Walk to Body Cafe")
+                            .replace("wth", "Walk to Home")
+                            .replace("tv", "[TV]")
+                            .replace("eat", "Eat")
+                            .replace("net", "[Internet]")
+                            .replace("manga", "[Manga]")
+                            .replace("twit org", "[Twitter] Organize Bookmarks")
+                            .replace("twit", "[Twitter] Browse")
+                            .replace("sports", "[Internet] Naver Sports")
+                            .replace("email check", "[Email] Check")
+                            .replace("email org", "[Email] Organize Starred")
+                            .replace("log", "[LOG] Collect")
+                            .replace(/^mu$/, "[YouTube Music]")
+        tasks.push(task);
+      }
+      let line = tasks.join(" / ");
+      outputLines.push(line);
+    }
+
+    return outputLines.join("\n");
+  }
+
   saveLog() {
     const requestOptions = {
       method: 'PUT',
@@ -320,7 +360,7 @@ class App extends React.Component {
                 <Col span={8}>
                   <Title level={5}>AM</Title>
                   <Pie data={amData} options={clockOptions}/>
-                  </Col>
+                </Col>
                 <Col span={8}>
                   <Title level={5}>PM</Title>
                   <Pie data={pmData} options={clockOptions}/>
@@ -328,7 +368,7 @@ class App extends React.Component {
                 <Col span={8}>
                   <Title level={5}>Summary</Title>
                   <Doughnut data={summaryData} options={summaryOptions}/>
-                  </Col>
+                </Col>
               </Row>
             </div>
             
@@ -383,6 +423,16 @@ class App extends React.Component {
                   <li>Exercise: Jog, PT</li>
                   <li>Health: Measure Weight (?), 혈압 측정 (?)</li>
                 </ul>
+              </TabPane>
+              <TabPane tab="Preprocessor" key="4">
+                <Row>
+                  <Col span={12}>
+                    <textarea id="preprocessInputTextarea" value={this.state.preprocessInput} onChange={(event) => this.onPreprocessTextareaChange(event)}></textarea>
+                  </Col>
+                  <Col span={12}>
+                    <textarea id="preprocessOutputTextarea" value={this.state.preprocessOutput} disabled></textarea>
+                  </Col>
+                </Row>
               </TabPane>
             </Tabs>
           </div>

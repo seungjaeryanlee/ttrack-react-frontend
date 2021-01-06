@@ -11,3 +11,9 @@
     width: 100%;
     height: 400px;
 }
+
+#preprocessInputTextarea,
+#preprocessOutputTextarea {
+    width: 100%;
+    height: 400px;
+}
