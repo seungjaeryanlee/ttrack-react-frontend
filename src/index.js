@@ -59,23 +59,20 @@ class App extends React.Component {
       )
   }
 
+  // Similar palette to https://www.visualcapitalist.com/how-people-spend-their-time-globally/
   labelToColor(label) {
-    if (label === "School and Work") {
-        return "#bae1ff";
-    } else if (label === "Personal Development") {
-        return "#baffc9";
-    } else if (label === "Personal Well-being") {
-        return "#ffffba";
-    } else if (label === "Misc") {
-        return "#343d46";
-    } else if (label === "Personal Enjoyment") {
-        return "#ffb3ba";
-    } else if (label === "Unknown") {
-        return "#c0c5ce";
-    } else {
-        console.debug(label);
-        return "#c0c5ce";
+    let labelToColorDict = {
+      "School and Work": "#e2cfc4",
+      "Side Projects": "#f7d9c4",
+      "Social Life": "#faedcb",
+      "Personal Development": "#c9e4de",
+      "Activities of Daily Living": "#c6def1",
+      "Misc": "#dbcdf0",
+      "Personal Enjoyment": "#f2c6de",
+      "Sleep": "#b2b2af",
+      "Unknown": "#e2e2df",
     }
+    return labelToColorDict[label]
   }
 
   prepareSummary(data) {
@@ -92,19 +89,16 @@ class App extends React.Component {
     }
     };
     let durationSum = 0;
-    let labelDurationSums = {
-      "School and Work": 0,
-      "Personal Development": 0,
-      "Personal Well-being": 0,
-      "Misc": 0,
-      "Personal Enjoyment": 0,
-      "Unknown": 0,
-    };
+    let labelDurationSums = {};
 
     for (let i = 0; i < data.durations.length; i++) {
       const label = data.line_labels[i];
       const duration = data.durations[i];
-      labelDurationSums[label] += duration;
+      if (label in labelDurationSums) {
+        labelDurationSums[label] += duration;
+      } else {
+        labelDurationSums[label] = duration;
+      }
       durationSum += duration;
     }
 
@@ -290,10 +284,13 @@ class App extends React.Component {
           <Col>
             <Select defaultValue="Unknown" onChange={(new_task_label) => this.updateTaskLabel(task, new_task_label)} style={{ width: 200 }}>
               <Option value="School and Work">School and Work</Option>
+              <Option value="Side Projects">Side Projects</Option>
+              <Option value="Social Life">Social Life</Option>
               <Option value="Personal Development">Personal Development</Option>
-              <Option value="Personal Well-being">Personal Well-being</Option>
+              <Option value="Activities of Daily Living">Activities of Daily Living</Option>
               <Option value="Misc">Misc</Option>
               <Option value="Personal Enjoyment">Personal Enjoyment</Option>
+              <Option value="Sleep">Sleep</Option>
               <Option value="Ignore">Ignore</Option>
               <Option value="Unknown">Unknown</Option>
             </Select>

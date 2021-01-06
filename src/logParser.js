@@ -42,10 +42,13 @@ export var parseLog = function(log, task_to_label) {
 export const LABEL_PRIORITIES = [
     "Unknown",
     "School and Work",
+    "Side Projects",
+    "Social Life",
     "Personal Development",
-    "Personal Well-being",
+    "Activities of Daily Living",
     "Misc",
     "Personal Enjoyment",
+    "Sleep",
     "Ignore",
 ]
 
