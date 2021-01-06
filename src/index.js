@@ -227,25 +227,28 @@ class App extends React.Component {
     let rawLines = preprocessInput.split(/\r?\n/);
     for (const rawLine of rawLines) {
       let tasks = [];
+      // TODO: Separate time from task
       for (const rawTask of rawLine.split("/")) {
         const task = rawTask.trim()
                             .replace("bed", "Lie in Bed")
-                            .replace("jog", "Jog (Running Machine)")
-                            .replace("cycle", "Cycle (Cycling Machine)")
+                            .replace("change", "Change Clothes")
                             .replace("cnp", "Change & Pack")
-                            .replace("wtbc", "Walk to Body Cafe")
-                            .replace("wth", "Walk to Home")
-                            .replace("tv", "[TV]")
+                            .replace("cycle", "Cycle (Cycling Machine)")
                             .replace("eat", "Eat")
-                            .replace("net", "[Internet]")
-                            .replace("manga", "[Manga]")
-                            .replace("twit org", "[Twitter] Organize Bookmarks")
-                            .replace("twit", "[Twitter] Browse")
-                            .replace("sports", "[Internet] Naver Sports")
                             .replace("email check", "[Email] Check")
                             .replace("email org", "[Email] Organize Starred")
+                            .replace("jog", "Jog (Running Machine)")
                             .replace("log", "[LOG] Collect")
+                            .replace("manga", "[Manga]")
+                            .replace("net genshin cafe", "[Internet] 원신: 네이버 카페")
+                            .replace("sports", "[Internet] Naver Sports")
+                            .replace("twit org", "[Twitter] Organize Bookmarks")
+                            .replace("twit", "[Twitter] Browse")
+                            .replace("tv", "[TV]")
+                            .replace("wtbc", "Walk to Body Cafe")
+                            .replace("wth", "Walk to Home")
                             .replace(/^mu$/, "[YouTube Music]")
+                            .replace(/^net$/, "[Internet]")
         tasks.push(task);
       }
       let line = tasks.join(" / ");
