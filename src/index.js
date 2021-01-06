@@ -256,6 +256,7 @@ class App extends React.Component {
       )
   }
 
+  // TODO: Use antd List instead
   getUnknownTasks() {
     const flat_tasks = this.state.data.tasks.flat();
     const flat_task_labels = this.state.data.task_labels.flat();
@@ -341,6 +342,47 @@ class App extends React.Component {
               </TabPane>
               <TabPane tab="Classifier" key="2">
                 {this.getUnknownTasks()}
+              </TabPane>
+              <TabPane tab="Rule Examples" key="3">
+                <Title level={5}>School and Work</Title>
+                <ul>
+                  <li>[Princeton] ?</li>
+                  <li>[Bloomberg] ?</li>
+                </ul>
+                <Title level={5}>Side Projects</Title>
+                <ul>
+                  <li>[TTrack] ?</li>
+                  <li>[Meta Learning Book] ?</li>
+                  <li>[ClipDummy] ?</li>
+                </ul>
+                <Title level={5}>Personal Development</Title>
+                <ul>
+                  <li>[Notion] Kanban: Update</li>
+                  <li>[LOG] Collect</li>
+                  <li>[Twitter] Browse</li>
+                </ul>
+                <Title level={5}>Social Life</Title>
+                <ul>
+                  <li>[Email] Check</li>
+                  <li>[Email] Organize Starred</li>
+                  <li>[Facebook] Browse</li>
+                </ul>
+                <Title level={5}>Personal Enjoyment</Title>
+                <ul>
+                  <li>[Game]</li>
+                  <li>[YouTube]</li>
+                  <li>[Internet]</li>
+                </ul>
+                <Title level={5}>Activities of Daily Living</Title>
+                <a href="https://en.wikipedia.org/wiki/Activities_of_daily_living">Wikipedia</a>
+                <ul>
+                  <li>Hygiene: Shower, Bathroom, Brush Teeth</li>
+                  <li>Fashion: Change Clothes, Style Hair</li>
+                  <li>Food: Get Food, Eat</li>
+                  <li>Moving: Walk to ?, Ride to ?</li>
+                  <li>Exercise: Jog, PT</li>
+                  <li>Health: Measure Weight (?), 혈압 측정 (?)</li>
+                </ul>
               </TabPane>
             </Tabs>
           </div>
