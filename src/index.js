@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Doughnut, Pie } from 'react-chartjs-2';
+import { Doughnut, HorizontalBar, Pie } from 'react-chartjs-2';
 import { Button, Col, Row, Select, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
@@ -76,17 +76,37 @@ class App extends React.Component {
   }
 
   prepareSummary(data) {
-    const summaryOptions = {
+    const summaryDonutOptions = {
       legend: { display: false },
-      plugins: { datalabels: { render: "value", anchor: "end", align: "end", display: true } },layout: {
-      // Padding to give space for datalabels
-      padding: {
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: 20,
+      plugins: { datalabels: { render: "value", anchor: "end", align: "end", display: true } },
+      layout: {
+        // Padding to give space for datalabels
+        padding: {
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: 20,
+        }
       }
-    }
+    };
+    const summaryBarOptions = {
+      scales: {
+        xAxes: [{
+          stacked: true,
+          ticks: {
+              min: 0,
+              max: 24 * 60,
+              stepSize: 60,
+          },
+        }],
+        yAxes: [{
+          stacked: true,
+        }],
+      },
+      tooltips: {
+          // Overrides the global setting
+          mode: 'index',
+      },
     };
     let durationSum = 0;
     let labelDurationSums = {};
@@ -102,21 +122,29 @@ class App extends React.Component {
       durationSum += duration;
     }
 
-    let summaryData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
+    let summaryDonutData = { datasets: [{ data: [], backgroundColor: [], borderColor: [] }], labels: [] };
+    let summaryBarData = { datasets: [], labels: ["Total"] };
     for (let [label, duration] of Object.entries(labelDurationSums)) {
       const color = this.labelToColor(label);
-      summaryData.datasets[0].data.push(duration);
-      summaryData.datasets[0].backgroundColor.push(color);
-      summaryData.labels.push(label);
-    }
-    // Add empty fragment for missing log
-    if (durationSum < 24 * 60) {
-      summaryData.datasets[0].data.push(24 * 60 - durationSum);
-      summaryData.datasets[0].backgroundColor.push("#ffffff");
-      summaryData.labels.push("");
+      summaryDonutData.datasets[0].data.push(duration);
+      summaryDonutData.datasets[0].backgroundColor.push(color);
+      summaryDonutData.labels.push(label);
+
+      const dataset = { data: [duration], backgroundColor: [color], label: label };
+      summaryBarData.datasets.push(dataset);
     }
 
-    return [summaryData, summaryOptions]
+    // Add empty fragment for missing log
+    if (durationSum < 24 * 60) {
+      summaryDonutData.datasets[0].data.push(24 * 60 - durationSum);
+      summaryDonutData.datasets[0].backgroundColor.push("#ffffff");
+      summaryDonutData.labels.push("");
+
+      const dataset = { data: [24 * 60 - durationSum], backgroundColor: ["#ffffff"], label: "Unrecorded" };
+      summaryBarData.datasets.push(dataset);
+    }
+
+    return [summaryDonutData, summaryDonutOptions, summaryBarData, summaryBarOptions];
   }
 
   prepareClocks(data) {
@@ -354,7 +382,7 @@ class App extends React.Component {
       return <div>Loading...</div>;
     } else {
       let [amData, pmData, clockOptions] = this.prepareClocks(data);
-      let [summaryData, summaryOptions] = this.prepareSummary(data);
+      let [summaryDonutData, summaryDonutOptions, summaryBarData, summaryBarOptions] = this.prepareSummary(data);
       return (
         <div>
           <div className="container">
@@ -370,16 +398,28 @@ class App extends React.Component {
                 </Col>
                 <Col span={8}>
                   <Title level={5}>Summary</Title>
-                  <Doughnut data={summaryData} options={summaryOptions}/>
+                  <Doughnut data={summaryDonutData} options={summaryDonutOptions}/>
+                </Col>
+              </Row>
+              <div class="spacing"></div>
+              <Row>
+                <Col span={24}>
+                  <div className="summary-bar-container">
+                    <HorizontalBar data={summaryBarData} options={summaryBarOptions} height={30}/>
+                  </div>
                 </Col>
               </Row>
             </div>
-            
+
+            <div class="spacing"></div>
+
             <Tabs defaultActiveKey="1">
               <TabPane tab="LOG" key="1">
                 <div className="log-container">
                   <DatePicker value={this.state.logDate} onChange={(date, dateString) => this.setLogDate(date, dateString)} />
+                  <div className="spacing-half"></div>
                   <textarea id="log" value={this.state.log} onChange={(event) => this.onLogTextareaChange(event)}></textarea>
+                  <div className="spacing-half"></div>
                   <Button type="primary" onClick={this.saveLog.bind(this)}>Save LOG</Button>
                 </div>
               </TabPane>
@@ -389,22 +429,19 @@ class App extends React.Component {
               <TabPane tab="Rule Examples" key="3">
                 <Title level={5}>School and Work</Title>
                 <ul>
-                  <li>[Princeton] ?</li>
-                  <li>[Bloomberg] ?</li>
+                  <li>School: [Princeton]</li>
+                  <li>Work: [Bloomberg]</li>
                 </ul>
                 <Title level={5}>Side Projects</Title>
                 <ul>
-                  <li>[TTrack] ?</li>
-                  <li>[Meta Learning Book] ?</li>
-                  <li>[ClipDummy] ?</li>
+                  <li>Projects: [TTrack], [Meta Learning Book], [ClipDummy]</li>
                 </ul>
                 <Title level={5}>Personal Development</Title>
                 <ul>
                   <li>[Notion] Kanban: Update</li>
                   <li>[LOG] Collect</li>
                   <li>[Twitter] Browse</li>
-                  <li>[Email] Check</li>
-                  <li>[Email] Organize Starred</li>
+                  <li>[Email] Check, Organize Starred</li>
                 </ul>
                 <Title level={5}>Social Life</Title>
                 <ul>
