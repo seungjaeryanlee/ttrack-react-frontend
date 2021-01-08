@@ -25,7 +25,7 @@ class App extends React.Component {
       isLoaded: false,
       data: {},
       log: "",
-      logDate: dayjs("2021-01-01"),
+      logDate: dayjs(), // Now
       task_to_label: {},
     };
   }
