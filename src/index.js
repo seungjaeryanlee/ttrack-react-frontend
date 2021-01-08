@@ -403,11 +403,11 @@ class App extends React.Component {
                   <li>[Notion] Kanban: Update</li>
                   <li>[LOG] Collect</li>
                   <li>[Twitter] Browse</li>
+                  <li>[Email] Check</li>
+                  <li>[Email] Organize Starred</li>
                 </ul>
                 <Title level={5}>Social Life</Title>
                 <ul>
-                  <li>[Email] Check</li>
-                  <li>[Email] Organize Starred</li>
                   <li>[Facebook] Browse</li>
                 </ul>
                 <Title level={5}>Personal Enjoyment</Title>
