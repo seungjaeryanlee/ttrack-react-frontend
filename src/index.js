@@ -104,8 +104,7 @@ class App extends React.Component {
         }],
       },
       tooltips: {
-          // Overrides the global setting
-          mode: 'index',
+        enabled: false,
       },
     };
     let durationSum = 0;
