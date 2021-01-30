@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Doughnut, HorizontalBar, Pie } from 'react-chartjs-2';
-import { Button, Col, Row, Select, Tabs, Typography } from 'antd';
+import { Button, Col, Input, Row, Select, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // eslint-disable-line
 
@@ -27,6 +27,8 @@ class App extends React.Component {
       log: "",
       logDate: dayjs(), // Now
       task_to_label: {},
+      passwordInput: "",
+      password: null,
     };
   }
 
@@ -71,8 +73,8 @@ class App extends React.Component {
       "Personal Enjoyment": "#f2c6de",
       "Sleep": "#b2b2af",
       "Unknown": "#e2e2df",
-    }
-    return labelToColorDict[label]
+    };
+    return labelToColorDict[label];
   }
 
   prepareSummary(data) {
@@ -373,8 +375,35 @@ class App extends React.Component {
     return elements;
   }
 
+  onPasswordInputChange(event) {
+    this.setState({
+      passwordInput: event.target.value,
+    });
+  }
+
+  onPasswordSubmit() {
+    this.setState({
+      password: this.state.passwordInput,
+    });
+    console.log(this.state.passwordInput);
+  }
+
   render() {
     const { error, isLoaded, data } = this.state;
+
+    // Authentication
+    if (this.state.password === null) {
+      return (
+        <div>
+          <div className="password-container">
+            <Title level={3}>Enter Password</Title>
+            <Input id="password-input" onChange={(event) => this.onPasswordInputChange(event)} />
+            <Button id="password-submit" type="primary" value={this.state.passwordInput} onClick={() => this.onPasswordSubmit()}>Enter</Button>
+          </div>
+        </div>
+      );
+    }
+
     if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
@@ -400,7 +429,7 @@ class App extends React.Component {
                   <Doughnut data={summaryDonutData} options={summaryDonutOptions}/>
                 </Col>
               </Row>
-              <div class="spacing"></div>
+              <div className="spacing"></div>
               <Row>
                 <Col span={24}>
                   <div className="summary-bar-container">
@@ -410,7 +439,7 @@ class App extends React.Component {
               </Row>
             </div>
 
-            <div class="spacing"></div>
+            <div className="spacing"></div>
 
             <Tabs defaultActiveKey="1">
               <TabPane tab="LOG" key="1">

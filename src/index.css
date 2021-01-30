@@ -25,3 +25,12 @@
     width: 100%;
     height: 400px;
 }
+
+.password-container {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+#password-input {
+    margin-bottom: 10px;
+}
