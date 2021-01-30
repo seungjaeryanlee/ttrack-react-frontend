@@ -32,11 +32,11 @@ class App extends React.Component {
     };
   }
 
-  componentDidMount() {
+  loadInitialData() {
     // NOTE: Promise for multiple fetches: https://stackoverflow.com/a/52883003/2577392
     Promise.all([
-      fetch(`http://localhost:5000/api/log/${this.state.logDate.format("YYYY-MM-DD")}`),
-      fetch(`http://localhost:5000/api/rules/all`)
+      fetch(`http://localhost:5000/api/log/${this.state.logDate.format("YYYY-MM-DD")}`, { headers: { password: this.state.password }}),
+      fetch(`http://localhost:5000/api/rules/all`, { headers: { password: this.state.password }})
     ])
       .then(([res1, res2]) => {
         return Promise.all([res1.json(), res2.json()])
@@ -220,7 +220,7 @@ class App extends React.Component {
 
     // Reload LOG textarea
     const logDateStr = logDate.format("YYYY-MM-DD");
-    fetch(`http://localhost:5000/api/log/${logDateStr}`)
+    fetch(`http://localhost:5000/api/log/${logDateStr}`, { headers: { password: this.state.password }})
       .then((res) => res.json())
       .then(
         (result) => {
@@ -290,7 +290,10 @@ class App extends React.Component {
   saveLog() {
     const requestOptions = {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        "password": this.state.password,
+      },
       body: JSON.stringify({ date: this.state.logDate.format("YYYY-MM-DD") , log: this.state.log })
     };
     fetch('http://localhost:5000/api/log/save', requestOptions)
@@ -306,7 +309,10 @@ class App extends React.Component {
   updateTaskLabel(task, task_label) {
     fetch(`http://localhost:5000/api/rules/add`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        "password": this.state.password,
+      },
       body: JSON.stringify({ task, task_label })
     })
       .then((res) => res.json())
@@ -384,8 +390,7 @@ class App extends React.Component {
   onPasswordSubmit() {
     this.setState({
       password: this.state.passwordInput,
-    });
-    console.log(this.state.passwordInput);
+    }, this.loadInitialData);
   }
 
   render() {
@@ -404,7 +409,7 @@ class App extends React.Component {
       );
     }
 
-    if (error) {
+    else if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
       return <div>Loading...</div>;
