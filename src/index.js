@@ -17,6 +17,10 @@ const { TabPane } = Tabs;
 const { Title, Text } = Typography;
 
 
+function isEmptyDict(obj) {
+  return (Object.keys(obj).length === 0 && obj.constructor === Object);
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -29,6 +33,7 @@ class App extends React.Component {
       task_to_label: {},
       passwordInput: "",
       password: null,
+      passwordIsCorrect: true,
     };
   }
 
@@ -42,12 +47,19 @@ class App extends React.Component {
         return Promise.all([res1.json(), res2.json()])
       })
       .then(([res1, res2]) => {
-          this.setState({
-            isLoaded: true,
-            log: res1.log,
-            data: parseLog(res1.log, res2),
-            task_to_label: res2,
-          })
+          if (isEmptyDict(res1) && isEmptyDict(res2)) {
+            this.setState({
+              passwordIsCorrect: false,
+            });
+          } else {
+            this.setState({
+              isLoaded: true,
+              passwordIsCorrect: true,
+              log: res1.log,
+              data: parseLog(res1.log, res2),
+              task_to_label: res2,
+            });
+          }
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -407,6 +419,13 @@ class App extends React.Component {
           </div>
         </div>
       );
+    }
+    else if (!this.state.passwordIsCorrect) {
+      return (
+        <div className="password-container">
+          <Title level={3}>Password is incorrect!</Title>
+        </div>
+      )
     }
 
     else if (error) {
