@@ -281,6 +281,7 @@ class App extends React.Component {
                             .replace("jog", "Jog (Running Machine)")
                             .replace("log", "[LOG] Collect")
                             .replace("manga", "[Manga]")
+                            .replace("net genshin", "[Internet] 원신")
                             .replace("net genshin cafe", "[Internet] 원신: 네이버 카페")
                             .replace("sports", "[Internet] Naver Sports")
                             .replace("twit org", "[Twitter] Organize Bookmarks")
